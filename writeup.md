@@ -10,19 +10,18 @@ The goals / steps of this project are the following:
 
 
 [//]: # (Image References)
-[image1]: ./examples/grayscale.jpg "Grayscale"
-[image2]: ./examples/area_of_interest.jpg "Area of interest"
-[image3]: ./examples/cropped.jpg "Image cropped to Area of interest"
-[image4]: ./examples/distance_map.jpg "Distance map (inversed)"
-[image5]: ./examples/edges.jpg "Canny Edges with different kernel sizes"
-[image6]: ./examples/hough_lines.jpg "Hough lines"
-[image7]: ./examples/groups.jpg "Line clusters"
-[image8]: ./examples/trapezoid.jpg "Lane line selection"
-[image9]: ./examples/result.jpg "The detected lanes"
-[image10]: ./examples/heavy_noise.jpg "Canny Failure"
+[image1]: ./examples/area_of_interest.jpg "Area of interest"
+[image2]: ./examples/cropped.jpg "Image cropped to Area of interest"
+[image3]: ./examples/distance_map.jpg "Distance map (inversed)"
+[image4]: ./examples/edges.jpg "Canny Edges with different kernel sizes"
+[image5]: ./examples/hough_lines.jpg "Hough lines"
+[image6]: ./examples/groups.jpg "Line clusters"
+[image7]: ./examples/trapezoid.jpg "Lane line selection"
+[image8]: ./examples/result.jpg "The detected lanes"
+[image9]: ./examples/heavy_noise.jpg "Canny Failure"
+[image10]: ./examples/text_interference.jpg "Misleading Hough lines caused by text"
 [image11]: ./examples/crossing_lanes.jpg "Trapezoid Failure"
-[image12]: ./examples/text_interference.jpg "Misleading Hough lines caused by text"
-[image13]: ./examples/perspecive.jpg "Perspective mapping"
+[image12]: ./examples/perspective.jpg "Perspective mapping"
 
 ---
 
@@ -35,13 +34,13 @@ My pipeline consisted of 6 steps:
 #### 1.1 Area of interest
 First, I've defined an area of interest, represented by a perspectively distorted rectangle on what I perceived as ground plane in all of the provided videos and images:
 
-![alt text][image2]
+![Area of interest][image1]
 
 The area serves as a rough filter which supresses eventually misleading line detections outside the area where we'd expect lane markings. Also the perspective of the camera causes lane lines to get thinner and more blurry as they approach the horizon, thus gradually diminishing the precision of line detection. This is why the area of interest restricts lane detection to the lower 3rd of the image/frame.
 
 Furthermore, the area of interest improves the performance for the subsequent pipeline steps, as it allows the image to be cropped to the area bounds:
 
-![alt text][image3]
+![Image cropped to Area of interest][image2]
 
 
 #### 1.2 Color distance map
@@ -56,14 +55,14 @@ The biggest challenge in this step has been to get the algorithm run fast (my fi
 
 Since the clamping removes all gray values < 150, I've added a normalization step afterwards, based on the pixel values inside the area of interest. After the normalization, the maximum gray scale range between 0 and 255 is used again to provide an optimal basis for canny edges. I've also inverted the gray scale values (just for visuals, so all lane markings are displayed white):
 
-![alt text][image4]
+![Distance map (inversed)][image3]
 
 
 #### 1.3 Canny Edge Detection
 
 In the next step, I run a Canny Edge Detection as learned in the videos. In order to remove edges between remaining unwanted details/noise, I invoke a Gaussian Blur step beforehand. Intuitively, I've chosen the blur to use the same kernel size as the aperture size of the canny edges. I've chosen the value 7 for it because it is the smallest value that eradicated all unwanted details in the examples provided. Because of the previous normalization, I can afford to set the upper threshold of Canny to a relatively high value of 150, but I keep the lower threshold at 50 in order to avoid disconnected edge pixels which could be troublesome for the upcoming Hough Lines Transformation.
 
-![alt text][image5]
+![Canny Edges with different kernel sizes][image4]
  
 
 #### 1.4 Hough Lines
@@ -79,7 +78,7 @@ The reason I have chosen relatively small values for minimum line length and dec
 
 Within the area of interest I can reglect the influnce from curves, so can I expect lane lines to vaguely point into the direction of the vanishing point. The direction of the horizontal lines is not influenced by the perspective distortion, so I can safely rule them out as candidates for lane lines.  This is done in an additional filter step at the end of Hough Lines. 
 
-![alt text][image6]
+![Hough lines][image5]
 
 #### 1.5 Line clustering
 
@@ -93,7 +92,7 @@ b) The weighted angle difference between the line segment and the straight line
 
 Every lane marking is expected to have a physical extent and thus must contain 2 outer lines. So at the end of the clustering, I can safely remove all clusters with less than 2 lines.
 
-![alt text][image7]
+![Line clusters][image6]
 
 #### 1.6 Lane selection
 
@@ -102,11 +101,11 @@ This is a very hard task, because neither the absolute number of lines inside a 
 
 So I decided to take the perspective implications into accout and select the two clusters with the highest combined number of lines, which form a proper trapezoid:
 
-![alt text][image8]
+![Lane line selection][image7]
 
 The detected lane lines are further run through a depth-pass filter over successive selections in the videos. This is more for visual appeasement than it serves any real purpose. Here is how the result looks:
 
-![alt text][image9]
+![The detected lanes][image8]
 
 ### 2. Identify potential shortcomings with your current pipeline
 
@@ -127,13 +126,13 @@ Unexpected light and or weather conditions may have a strong impact on the rgb v
 
 Another weak point of the algorithm is definitely the Canny Edges. It generally delivers a significant number of edges which are irrelevant for lane detection and which have to be statistically cleaned afterwards. It is specifically vulnarable against strong noise, e.g. see the following image:
 
-![alt text][image10]
+![Canny Failure][image9]
 
 #### 2.4 Hough Lines
 
 I was forced to chose a relatively small line length for the Hough Lines in order to be still able to detect broken lane markings and curved lane markings. Both are cases in with the Hough Line algorithm seems to be the non-optimal approach. Also with the low line length threshold, now the Hough Lines step produces alot of misleading line segments when text or vehicles interfere:
 
-![alt text][image12]
+![Misleading Hough lines caused by text][image10]
 
 #### 2.5 Line clustering
 
@@ -145,7 +144,7 @@ The pure number of line segments in a cluster is not a secure indication for a l
 
 Also in case the vanishing point is very high, lane lines might actually cross within the area of interest, in which case the correct lane line combination would be forbidden by the trapezoid restriction: 
 
-![alt text][image11]
+![Trapezoid Failure][image11]
 
 
 ### 3. Suggest possible improvements to your pipeline
@@ -158,7 +157,7 @@ In general we can say, the information close to the camera  is quite detailed an
 
 I would keep the distance mapping at the begin of the pipeline, it seems like an overall good preprocessing. In the second step one could add a perspective mapping, so that instead of our lane lines being pointed towards a vanishing point, they'd be somewhat parallel:
 
-![alt text][image13]
+![Perspective mapping][image12]
 
 Now, instead of the Canny/Hough combo, we could start at the bottom of the mapped image and search for lane signatures in each row of the mapped image. That could also make use of the yet unused fact, that in between the two outer borders of the physical lane marking, there is only one specific color prominent (white).
 
