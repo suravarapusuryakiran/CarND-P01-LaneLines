@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 [image5]: ./examples/edges.jpg "Canny Edges with different kernel sizes"
 [image6]: ./examples/hough_lines.jpg "Hough lines"
 [image7]: ./examples/groups.jpg "Line clusters"
-[image8]: ./examples/trapeziod.jpg "Lane line selection"
+[image8]: ./examples/trapezoid.jpg "Lane line selection"
 [image9]: ./examples/result.jpg "The detected lanes"
 [image10]: ./examples/heavy_noise.jpg "Canny Failure"
 
@@ -126,7 +126,7 @@ Another weak point of the algorithm is definitely the Canny Edges. It generally 
 
 ![alt text][image10]
 
-##### 2.4 Hough Lines
+#### 2.4 Hough Lines
 
 Hough Lines work quite well with the close-by lane markings, but Hough Lines referring to lane markings in the distance, especially when curved, can barely be distiguished from random lines.
 
@@ -151,11 +151,11 @@ In general we can say, the information close to the camera  is quite detailed an
 
 The first step could be a perspective mapping. Then we could start at the bottom of the mapped image and search for lane signatures in each row of the mapped image. That would also make use of the fact, that in between the two outer borders of the physical lane marking, there is only one specific color prominent.
 
-During the search upwards, we could access the lane information we've extracted from previous rows so far, expanding the detected lane marking pixel by pixel, marking their estimcated centers. This sort of expansion could end as soon as the probability for a  lane line falls under a specific threshold. We would then calculate a line or curve out of the gathered line centers.
+During the search upwards, we could access the lane information we've extracted from previous rows so far, expanding the detected lane marking pixel by pixel, marking their estimated centers. This sort of expansion could follow curves and end dynamically as the probability for still expanding a lane marking would fall under a specific threshold. We would then calculate a line or curve out of the gathered line centers.
 
 #### 3.2 Improve lane clustering
 
 Instead of one clustering step, there could be two hierarchical steps.
-Step 1 could have a very tight similarity threshold trying to accumulate only one of the outer borders of each lane marking.
+Step 1 could have a very tight similarity threshold trying to cluster only one of the outer borders of each lane marking.
 Step 2 could try to pair up the clusters from step one trying two find two parallel clusters with a distance that about matches expected line marking width.
 
