@@ -116,7 +116,8 @@ There are some weak points in the steps of the pipeline.
 The area of interest implicitly assumes an appropriate direction and position. So it can potentially cut away wanted information in situations where this is not given, e.g.
 * Camera center to low
 * 90° side way mobile cam video
-Also it has the capability to provide unwanted artifacts at its borders, e.g. neighbouring lanes parallel to the polygon lines, which happen to be sometimes just within the area, sometimes not.
+
+Also it has the capability to provide unwanted artifacts at its borders (e.g. neighbouring lanes parallel to the polygon lines, which happen to be sometimes just within the area, sometimes not).
 
 #### 2.2 Color distance map
 
@@ -130,7 +131,7 @@ Another weak point of the algorithm is definitely the Canny Edges. It generally 
 
 #### 2.4 Hough Lines
 
-I was forced to chose a relatively small line length for the Hough Lines in order to be still able to detect broken lane markings and curved lane markings. Both are cases in with the Hough Line algorithm seems to be the non-optimal approach. Also with the low line length threshold, now the Hough Lines step produces alot of misleading line segments when text or vehicles interfere:
+I was forced to chose a relatively small line length for the Hough Lines in order to be still able to detect broken lane markings and curved lane markings. Both are cases in which the Hough Line algorithm seems to be the non-optimal approach. Also with the low line length threshold, now the Hough Lines step produces alot of misleading line segments when text or vehicles interfere:
 
 ![Misleading Hough lines caused by text][image10]
 
